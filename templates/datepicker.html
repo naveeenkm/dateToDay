@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Date to Day tool</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* Custom styles */
+    .card-title {
+      font-size: 2rem;
+    }
+
+    .form-select,
+    .btn {
+      font-size: 1rem;
+    }
+
+    .btn {
+      padding: 10px 30px;
+    }
+
+    /* Dark mode toggle button */
+    .dark-mode-toggle {
+      position: absolute;
+      top: 20px;
+      right: 130px;
+      z-index: 10;
+    }
+
+    /* Info button */
+    .info-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 10;
+    }
+
+    /* Media query for smaller screens */
+    @media (max-width: 768px) {
+      .card-title {
+        font-size: 1.5rem; /* Smaller font size for mobile */
+      }
+      .dark-mode-toggle {
+        right: 10px;
+      }
+  
+      .info-button {
+        right: 120px; /* Adjusted accordingly */
+      }
+
+      .form-select,
+      .btn {
+        font-size: 0.875rem; /* Smaller font size for form elements */
+      }
+
+      .btn {
+        padding: 8px 20px; /* Adjust padding for smaller screens */
+      }
+    }
+
+    /* Result styling */
+    .result-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .result-text {
+      font-size: 1.25rem; /* Larger font size */
+      font-weight: bold; /* Bold text */
+      animation: fadeIn 1s ease-in-out; /* Fade-in animation */
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body class="d-flex flex-column min-vh-100 bg-light text-dark" id="main-body">
+
+  <!-- Dark Mode Toggle Button -->
+  <button class="btn btn-outline-dark dark-mode-toggle" id="darkModeToggle" onclick="toggleDarkMode()">Dark Mode</button>
+
+  <!-- Info Button -->
+  <button class="btn btn-info info-button" data-bs-toggle="modal" data-bs-target="#infoModal">Info</button>
+
+  <!-- Info Modal -->
+  <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content" id="infoModalContent">
+        <div class="modal-header">
+          <h5 class="modal-title" id="infoModalLabel">Info</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>This is a simple Date-to-Day prediction tool. Select a year, month, and date to predict the day of the week.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card Section -->
+  <div class="container my-auto">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card bg-primary text-white shadow-lg">
+          <div class="card-body">
+            <h2 class="card-title text-center">Pick a Year, Month, and Date</h2>
+            <form method="POST">
+              <!-- Year Selector -->
+              <div class="mb-3">
+                <label for="year" class="form-label">Select Year:</label>
+                <select id="year" name="year" class="form-select" onchange="updateDays()" required>
+                  <option value="" selected disabled>Choose a year</option>
+                  <script>
+                    // Generate year options from 1900 to 2200 dynamically
+                    for (let i = 1900; i <= 2200; i++) {
+                      document.write(`<option value="${i}">${i}</option>`);
+                    }
+                  </script>
+                </select>
+              </div>
+
+              <!-- Month Selector -->
+              <div class="mb-3">
+                <label for="month" class="form-label">Select Month:</label>
+                <select id="month" name="month" class="form-select" onchange="updateDays()" required>
+                  <option value="" selected disabled>Choose a month</option>
+                  <option value="01">January</option>
+                  <option value="02">February</option>
+                  <option value="03">March</option>
+                  <option value="04">April</option>
+                  <option value="05">May</option>
+                  <option value="06">June</option>
+                  <option value="07">July</option>
+                  <option value="08">August</option>
+                  <option value="09">September</option>
+                  <option value="10">October</option>
+                  <option value="11">November</option>
+                  <option value="12">December</option>
+                </select>
+              </div>
+
+              <!-- Day Selector -->
+              <div class="mb-3">
+                <label for="day" class="form-label">Select Date:</label>
+                <select id="day" name="day" class="form-select" required>
+                  <option value="" selected disabled>Choose a date</option>
+                  <!-- Day options will be dynamically updated -->
+                </select>
+              </div>
+
+              <!-- Buttons -->
+              <div class="text-center">
+                <a href="/" class="btn btn-secondary me-2">Back</a>
+                <button type="submit" class="btn btn-success">Submit</button>
+              </div>
+            </form>
+
+            <!-- Result Container -->
+            <div class="result-container">
+              {% if day_of_week %}
+              <div class="alert alert-info result-text">
+                Predicted Day of {{ selected_date }} is: <br>
+                <strong><span class="day-of-week">{{ day_of_week }}</span></strong>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Section -->
+  <footer class="bg-secondary text-center py-3 mt-auto">
+    <p>&copy;Copyright 2024. All rights reserved.</p>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Function to update the number of days based on the selected month and year
+    function updateDays() {
+      const month = document.getElementById('month').value;
+      const year = document.getElementById('year').value;
+      const daySelect = document.getElementById('day');
+
+      if (!month || !year) return; // Wait until both month and year are selected
+
+      let daysInMonth;
+      if (month == "01" || month == "03" || month == "05" || month == "07" || month == "08" || month == "10" || month == "12") {
+        daysInMonth = 31;
+      } else if (month == "04" || month == "06" || month == "09" || month == "11") {
+        daysInMonth = 30;
+      } else if (month == "02") {
+        // Check if it's a leap year
+        daysInMonth = (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) ? 29 : 28;
+      }
+
+      // Clear previous day options
+      daySelect.innerHTML = '<option value="" selected disabled>Choose a date</option>';
+
+      // Add new day options based on the calculated daysInMonth
+      for (let i = 1; i <= daysInMonth; i++) {
+        daySelect.innerHTML += `<option value="${i < 10 ? '0' + i : i}">${i}</option>`;
+      }
+    }
+
+    // Dark Mode Toggle Function
+    function toggleDarkMode() {
+      const body = document.getElementById('main-body');
+      const darkModeToggle = document.getElementById('darkModeToggle');
+      const infoModalContent = document.getElementById('infoModalContent'); // For the modal
+
+      // Toggle body classes for dark and light mode
+      body.classList.toggle('bg-dark');
+      body.classList.toggle('text-light');
+      body.classList.toggle('bg-light');
+      body.classList.toggle('text-dark');
+
+      // Toggle modal dark mode
+      infoModalContent.classList.toggle('bg-dark');
+      infoModalContent.classList.toggle('text-light');
+
+      // Change button text and button style
+      if (body.classList.contains('bg-dark')) {
+        darkModeToggle.textContent = "Light Mode";
+        darkModeToggle.classList.remove('btn-outline-dark');
+        darkModeToggle.classList.add('btn-outline-light');
+      } else {
+        darkModeToggle.textContent = "Dark Mode";
+        darkModeToggle.classList.remove('btn-outline-light');
+        darkModeToggle.classList.add('btn-outline-dark');
+      }
+
+      // Store user's preference in localStorage
+      localStorage.setItem('darkMode', body.classList.contains('bg-dark') ? 'enabled' : 'disabled');
+    }
+
+    // Load dark mode preference on page load
+    window.onload = function() {
+      const darkMode = localStorage.getItem('darkMode');
+      const darkModeToggle = document.getElementById('darkModeToggle');
+      const infoModalContent = document.getElementById('infoModalContent'); // For the modal
+
+      if (darkMode === 'enabled') {
+        document.getElementById('main-body').classList.add('bg-dark', 'text-light');
+        infoModalContent.classList.add('bg-dark', 'text-light'); // Apply dark mode to modal
+        darkModeToggle.textContent = "Light Mode";
+        darkModeToggle.classList.remove('btn-outline-dark');
+        darkModeToggle.classList.add('btn-outline-light');
+      }
+    }
+  </script>
+</body>
+</html>
